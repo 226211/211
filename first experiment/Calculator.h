@@ -27,6 +27,8 @@ bool Calculator::Operator(char op)
     case '(':
     case ')':
     case '=':
+    case '[':
+    case ']':
         return true;
     default:
         return false;
@@ -44,10 +46,12 @@ char Calculator::Precede(char op1, char op2)
         case '-':
         case ')':
         case '=':
+        case ']':
             return '>';
         case '/':
         case '(':
         case '*':
+        case '[':
             return '<';
         }
         break;
@@ -61,8 +65,10 @@ char Calculator::Precede(char op1, char op2)
         case '/':
         case ')':
         case '=':
+        case ']':
             return '>';
         case '(':
+        case '[':
             return '<';
         }
         break;
@@ -88,8 +94,43 @@ char Calculator::Precede(char op1, char op2)
         case '/':
         case ')':
         case '=':
+        case ']':
             return '>';
         case '(':
+            return 'E';
+        
+        }
+        break;
+    case '[':
+        switch (op2)
+        {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '(':
+        case '[':
+            return '<';
+        case ')':
+            return 'E';
+        case '=':
+        case ']':
+            return '=';
+        }
+        break;
+    case ']':
+        switch (op2)
+        {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case ')':
+        case '=':
+        case ']':
+            return '>';
+        case '(':
+        case '[':
             return 'E';
         }
         break;
@@ -101,8 +142,10 @@ char Calculator::Precede(char op1, char op2)
         case '*':
         case '/':
         case '(':
+        case '[':
             return '<';
         case ')':
+        case ']':
             return 'E';
         case '=':
             return '=';
@@ -137,16 +180,49 @@ void Calculator::run()
     char ch = '\0', e = '=';
     optr.Push('=');
     cin >> ch;
+    if(ch=='-')
+    {
+        double x;
+        cin >> x;
+        opnd.Push(-x);
+        cin >> ch;
+    }
     while (ch != '=' || optr.GetTop(e) != '=')
     {
         
+        
         if (!Operator(ch))
         {
+            if(ch>='0'&&ch<='9')
+            {
             cin.putback(ch);//将ch放回输入流
             double x;
             cin >> x;
             opnd.Push(x);
             cin >> ch;
+            if(ch == '!')
+            {
+                double y = 1;
+                for(int i = 1; i <= x; i++)
+                {
+                    y = y * i;
+                }
+                opnd.Pop(x);
+                opnd.Push(y);
+                cin >> ch;
+            }
+            else if(ch== '(')//数字后面不能跟括号
+            {
+                cout << "Error!" << endl;
+                return;
+            }
+            }
+            else
+            {
+                cout << "Error!" << endl;
+                return;
+            }
+            
         }
         else
         {
@@ -167,10 +243,90 @@ void Calculator::run()
                 double a, b;
                 GetTwoOperands(opnd, a, b);
                 opnd.Push(Operate(a, op, b));
-                break;
+                    break;
             case 'E':
                 cout << "Error!" << endl;
                 return;//出错，跳出函数
+            }
+            if(Operator(ch)&&ch!='=')
+            {
+                switch (ch)
+                {
+                case '(':
+                    switch(optr.GetTop(e))
+                    {
+                        case '[':
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                        case '=':
+                            break;
+                        default:
+                            cout << "Error!" << endl;
+                            return;
+                    }
+                    break;
+                case '[':   
+                    switch(optr.GetTop(e))
+                    {
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                        case '=':
+                            break;
+                        default:
+                            cout << "Error!" << endl;
+                            return;
+                    }
+                    break;
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                    if(optr.GetTop(e) == '(' || optr.GetTop(e) == '['||optr.GetTop(e) == '=')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        cout << "Error!" << endl;
+                        return;
+                    }
+                    break;
+                case ')':
+                    switch(optr.GetTop(e))
+                    {
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                        case '(':
+                            break;
+                        default:
+                            cout << "Error!" << endl;
+                            return;
+                    }
+                    break;
+                case ']':
+                    switch(optr.GetTop(e))
+                    {
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                        case '[':
+                            break;
+                        default:
+                            cout << "Error!" << endl;
+                            return;
+                    }
+                    break;
+                default:
+                        cout << "Error!" << endl;
+                        return;
+                }
             }
         }
         
