@@ -26,6 +26,7 @@ bool Calculator::Operator(char op)
     case '/':
     case '(':
     case ')':
+    case '=':
         return true;
     default:
         return false;
@@ -42,10 +43,11 @@ char Calculator::Precede(char op1, char op2)
         case '+':
         case '-':
         case ')':
-        case '*':
+        case '=':
             return '>';
         case '/':
         case '(':
+        case '*':
             return '<';
         }
         break;
@@ -58,6 +60,7 @@ char Calculator::Precede(char op1, char op2)
         case '*':
         case '/':
         case ')':
+        case '=':
             return '>';
         case '(':
             return '<';
@@ -84,6 +87,7 @@ char Calculator::Precede(char op1, char op2)
         case '*':
         case '/':
         case ')':
+        case '=':
             return '>';
         case '(':
             return 'E';
@@ -105,7 +109,6 @@ char Calculator::Precede(char op1, char op2)
         }
         break;
     }
-    return 'E';
 }
 double Calculator::Operate(double a, char op, double b)
 {
@@ -131,11 +134,12 @@ void Calculator::run()
 {
     Linkstack<char> optr;
     Linkstack<double> opnd;
-    char ch = '\0', e = '\0';
+    char ch = '\0', e = '=';
     optr.Push('=');
-    while (ch != '=' || e != '=')
+    cin >> ch;
+    while (ch != '=' || optr.GetTop(e) != '=')
     {
-        cin >> ch;
+        
         if (!Operator(ch))
         {
             cin.putback(ch);//将ch放回输入流
@@ -146,8 +150,7 @@ void Calculator::run()
         }
         else
         {
-            e = '=';
-            switch (Precede(e, ch))
+            switch (Precede(optr.GetTop(e), ch))
             {
 
             case '<':
@@ -155,9 +158,9 @@ void Calculator::run()
                 cin >> ch;
                 break;
             case '=':
-                optr.Pop(ch);//如果e=ch,则直接丢弃ch 只有（）才会出现这种情况
-                cin >> ch;
-                break;
+                    optr.Pop(ch);//如果e=ch,则直接丢弃ch 只有（）才会出现这种情况
+                    cin >> ch;
+                    break;
             case '>':
                 char op;
                 optr.Pop(op);//将栈顶元素弹出 并进行计算 只有小于才会计算
@@ -170,7 +173,9 @@ void Calculator::run()
                 return;//出错，跳出函数
             }
         }
+        
     }
-    optr.Top(e);
-
+    
+    double m = 0;
+    cout << opnd.GetTop(m) << endl;
 }

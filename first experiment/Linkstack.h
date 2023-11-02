@@ -18,6 +18,7 @@ public:
 	bool Top( ElemType &e) const;
 	bool Pop(ElemType &e);
 	bool Pop();
+    ElemType GetTop(ElemType &e) const;
 };
 template<class ElemType>
 Linkstack<ElemType>::Linkstack() {
@@ -89,5 +90,15 @@ bool Linkstack<ElemType>::Pop() {
         delete oldTop;
         count--;
         return true;
+    }
+}
+template<class ElemType>
+ElemType Linkstack<ElemType>::GetTop(ElemType& e) const {
+    if (Empty()) {//Õ»Îª¿Õ
+        return false;
+    }
+    else {
+        e = top->data;
+        return e;
     }
 }
